@@ -1,5 +1,7 @@
 const $btnKick = document.getElementById('btn-kick');
 const $btnSpecial = document.getElementById('btn-special');
+const $btnKickCount = document.getElementById('btn-kick-count');
+const $btnSpecialCount = document.getElementById('btn-special-count');
 const $logs = document.getElementById('logs');
 
 const logs = [
@@ -39,62 +41,58 @@ const enemy = {
   changeHP,
 };
 
-function createCountClick(limit, $btn) {
+const createCountClick = (limit, $btn, $countEl) => {
   let count = 0;
+  $countEl.innerText = `(${limit})`;
 
-  return function (maxCharDamage, maxEnemyDamage) {
+  return (maxCharDamage, maxEnemyDamage) => {
     if (count >= limit) {
-      console.log(`Кнопку "${$btn.innerText}" більше не можна натискати! Ліміт вичерпано.`);
       $btn.disabled = true;
       return;
     }
 
     count += 1;
     const rest = limit - count;
-
-    console.log(`Кнопку "${$btn.innerText}" натиснуто ${count} раз(ів). Залишилось натискань: ${rest}`);
+    $countEl.innerText = `(${rest})`;
 
     makeAttack(maxCharDamage, maxEnemyDamage);
 
     if (rest === 0) {
-      console.log(`Спроби для кнопки "${$btn.innerText}" закінчилися!`);
       $btn.disabled = true;
     }
   };
-}
+};
 
-const btnKickClick = createCountClick(6, $btnKick);
-const btnSpecialClick = createCountClick(6, $btnSpecial);
+const btnKickClick = createCountClick(6, $btnKick, $btnKickCount);
+const btnSpecialClick = createCountClick(6, $btnSpecial, $btnSpecialCount);
 
-$btnKick.addEventListener('click', function () {
+$btnKick.addEventListener('click', () => {
   btnKickClick(20, 20);
 });
 
-$btnSpecial.addEventListener('click', function () {
+$btnSpecial.addEventListener('click', () => {
   btnSpecialClick(15, 35);
 });
 
-function makeAttack(maxCharDamage, maxEnemyDamage) {
+const makeAttack = (maxCharDamage, maxEnemyDamage) => {
   const charDamage = random(maxCharDamage);
   const enemyDamage = random(maxEnemyDamage);
 
   character.changeHP(charDamage, enemy);
   enemy.changeHP(enemyDamage, character);
-}
+};
 
-function disableButtons() {
+const disableButtons = () => {
   $btnKick.disabled = true;
   $btnSpecial.disabled = true;
-}
+};
 
-function random(num) {
-  return Math.ceil(Math.random() * num);
-}
+const random = (num) => Math.ceil(Math.random() * num);
 
-function init() {
+const init = () => {
   character.renderHP();
   enemy.renderHP();
-}
+};
 
 function renderHP() {
   this.renderHPLife();
@@ -133,7 +131,7 @@ function changeHP(count, target) {
   generateLog(this, target, count);
 }
 
-function generateLog(firstPerson, secondPerson, count) {
+const generateLog = (firstPerson, secondPerson, count) => {
   const { name: defenderName, damageHP, defaultHP } = firstPerson;
   const { name: attackerName } = secondPerson;
 
@@ -141,9 +139,10 @@ function generateLog(firstPerson, secondPerson, count) {
     .replace('[ПЕРСОНАЖ №1]', defenderName)
     .replace('[ПЕРСОНАЖ №2]', attackerName);
 
-  const $p = document.createElement('p');$p.innerText = `${logText} [-${count}] [${damageHP}/${defaultHP}]`;
+  const $p = document.createElement('p');
+  $p.innerText = `${logText} [-${count}] [${damageHP}/${defaultHP}]`;
 
-  $logs.insertBefore($p,$logs.children[0]);
-}
+  $logs.insertBefore($p, $logs.children[0]);
+};
 
 init();
